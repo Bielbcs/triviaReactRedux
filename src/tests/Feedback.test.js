@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import md5 from 'crypto-js/md5';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import App from '../App';
@@ -8,8 +9,8 @@ import { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
 
 
 
-describe('Testa a página de Feedback', () => { 
- it('Testa se os elementos da página são exibidos', () => {
+describe('Testa a página de Feedback', () => {
+ it('Testa se os elementos da página são exibidos',() => {
   const initialState = { player: {
     nome: 'teste',
     assertions: 2,
@@ -45,7 +46,18 @@ describe('Testa a página de Feedback', () => {
    });
 
   it('Testa se os botões "Play Again" e "Ranking" redirecionam a página', () => {
-    const { history } = renderWithRouterAndRedux(<App />);
+    const initialState = { player: {
+      nome: 'teste',
+      assertions: 4,
+      score: 100,
+      gravatarEmail: 'teste@teste.com',
+      }};
+    const ranking = [{ 
+        name: 'meu nome',
+        score: 10,
+        picture: `https://www.gravatar.com/avatar/${md5('teste@teste.com').toString()}` }];
+    localStorage.setItem('ranking', JSON.stringify(ranking));
+    const { history } = renderWithRouterAndRedux(<App />, initialState);
     history.push('/feedback');
     const rankingBtn = screen.getByTestId('btn-ranking');
     userEvent.click(rankingBtn);
