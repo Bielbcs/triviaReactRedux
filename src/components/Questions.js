@@ -39,12 +39,11 @@ class Questions extends Component {
   }
 
   setId = () => {
-    const MAGICFOUR = 4;
+    const { questions } = this.props;
     this.setState((prevState) => ({
       ...prevState,
       id: prevState.id + 1,
-    }), ({ id } = this.state) => id <= MAGICFOUR && this.randomQuestions(),
-    () => this.randomQuestions());
+    }), ({ id } = this.state) => id < questions.length && this.randomQuestions());
     this.resetTimerOnPage();
   };
 
@@ -133,13 +132,12 @@ class Questions extends Component {
 
   render() {
     const { questions } = this.props;
-    const MAGICFOUR = 4;
     const { id, randomized, isDisabled, seconds, disableAnswers } = this.state;
 
     return (
       <div>
         {
-          id <= MAGICFOUR
+          id < questions.length
             ? (
               <div>
                 <aside>

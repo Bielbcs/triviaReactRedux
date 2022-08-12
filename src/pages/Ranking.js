@@ -7,8 +7,14 @@ export default class Ranking extends Component {
   }
 
   componentDidMount() {
+    this.getLocalStorage();
+  }
+
+  getLocalStorage = () => {
     const teste = JSON.parse(localStorage.getItem('ranking'));
-    this.setState({ userRanking: teste.sort((a, b) => b.score - a.score) });
+    if (teste) {
+      this.setState({ userRanking: teste.sort((a, b) => b.score - a.score) });
+    }
   }
 
   render() {

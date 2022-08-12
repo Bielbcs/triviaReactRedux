@@ -36,68 +36,46 @@ const mockQuestions = {
               "False"
           ]
       },
-      {
-          "category": "Entertainment: Comics",
-          "type": "multiple",
-          "difficulty": "medium",
-          "question": "Which issue of the &quot;Sonic the Hedgehog&quot; comic did Scourge the Hedgehog make his first appearance?",
-          "correct_answer": "Sonic the Hedgehog #11",
-          "incorrect_answers": [
-              "Sonic Universe #32",
-              "Sonic the Hedgehog #161",
-              "Sonic the Hedgehog #47"
-          ]
-      },
-      {
-          "category": "General Knowledge",
-          "type": "multiple",
-          "difficulty": "medium",
-          "question": "The website &quot;Shut Up &amp; Sit Down&quot; reviews which form of media?",
-          "correct_answer": "Board Games",
-          "incorrect_answers": [
-              "Television Shows",
-              "Video Games",
-              "Films"
-          ]
-      },
-      {
-          "category": "Science & Nature",
-          "type": "multiple",
-          "difficulty": "hard",
-          "question": "What causes the sound of a heartbeat?",
-          "correct_answer": "Closure of the heart valves",
-          "incorrect_answers": [
-              "Contraction of the heart chambers",
-              "Blood exiting the heart",
-              "Relaxation of the heart chambers"
-          ]
-      }
   ]
 }
+
+const initialState = { player: {
+  nome: 'teste',
+  assertions: '',
+  score: 0,
+  gravatarEmail: 'teste@teste.com',
+}};
+
+global.fetch = jest.fn(
+  () => {
+    return Promise.resolve({
+      json: () => Promise.resolve(mockToken),
+    })
+  }
+)
+global.fetch = jest.fn(
+  () => {
+    return Promise.resolve({
+      json: () => Promise.resolve(mockQuestions),
+    })
+  }
+)
+
+
 describe('Requisito "(5-11)" GAME ', () => {
-  global.fetch = jest.fn(
-    () => {
-      return Promise.resolve({
-        json: () => Promise.resolve(mockToken),
-      })
-    }
-    )
-    global.fetch = jest.fn(
-      () => {
-        return Promise.resolve({
-          json: () => Promise.resolve(mockQuestions),
-        })
-      }
-      )
+  jest.useFakeTimers();
+  jest.spyOn(global, 'setTimeout');
   const history = createBrowserHistory();
   test('testa se ao logar o usuario é redirecionado para página de game', async () => {
     const { history } = renderWithRouterAndRedux(<App />);
     const emailInput = screen.getByTestId('input-gravatar-email');
     const nameInput = screen.getByTestId('input-player-name');
     const buttonInput = screen.getByTestId('btn-play');
+
     userEvent.type(emailInput, 'teste@teste.com');
     userEvent.type(nameInput, 'qualquer nome');
     userEvent.click(buttonInput);
+
     await waitFor( () => {
     const rota = history.location.pathname;
     const userName = screen.queryByTestId("header-player-name");
@@ -105,26 +83,16 @@ describe('Requisito "(5-11)" GAME ', () => {
     expect(userName).toBeInTheDocument();
     });
   });
+
   test('testa se uma pergunta é renderizada na tela', async () => {
-    const initialState = { player: {
-    nome: 'teste',
-    assertions: '',
-    score: 0,
-    gravatarEmail: 'teste@teste.com',
-    }};
     renderWithRouterAndRedux(<Game history={ history }/>, initialState);
     await waitFor(() => {
     const question = screen.queryByTestId('question-text').textContent;
     expect(question).toBe("What color/colour is a polar bear&#039;s skin?");
     })
   });
+
   test('testa se ao clicar na resposta uma className é setada', async () => {
-    const initialState = { player: {
-    nome: 'teste',
-    assertions: '',
-    score: 0,
-    gravatarEmail: 'teste@teste.com',
-    }};
     renderWithRouterAndRedux(<Game history={ history }/>, initialState);
     await waitFor(() => {
     const answer = screen.queryByTestId('correct-answer');
@@ -132,23 +100,50 @@ describe('Requisito "(5-11)" GAME ', () => {
     expect(answer).toHaveClass('correct-answer')
     })
   });
+
   test('testa se ao clicar no botão de Next uma nova pergunta é renderizada', async () => {
-    const initialState = { player: {
-    nome: 'teste',
-    assertions: '',
-    score: 0,
-    gravatarEmail: 'teste@teste.com',
-    }};
     renderWithRouterAndRedux(<Game history={ history }/>, initialState);
 
     await waitFor(() => {
     const questionOld = screen.queryByTestId('question-text').textContent;
-    const answer = screen.queryByTestId('correct-answer');
+    const answer = screen.getByTestId('wrong-answer-1');
     userEvent.click(answer);
     const buttonNext = screen.getByText('Next');
     userEvent.click(buttonNext);
     const questionNew = screen.queryByTestId('question-text').textContent;
     expect(questionOld).not.toBe(questionNew);
     })
+  });
+
+  test('Testa se os botões são desabilitados', async () => {
+    renderWithRouterAndRedux(<Game history={ history }/>, initialState);
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-next')).toBeInTheDocument();
+      expect(screen.queryByTestId('correct-answer')).toBeDisabled();
+    })
+  });
+
+  test('Testa a quantidade de acertos', async () => {
+    const { history } = renderWithRouterAndRedux(<App />);
+    const emailInput = screen.getByTestId('input-gravatar-email');
+    const nameInput = screen.getByTestId('input-player-name');
+    const buttonInput = screen.getByTestId('btn-play');
+
+    userEvent.type(emailInput, 'teste@teste.com');
+    userEvent.type(nameInput, 'qualquer nome');
+    userEvent.click(buttonInput);
+
+    await waitFor(() => {
+      userEvent.click(screen.getByTestId('btn-next'));
+      userEvent.click(screen.queryByTestId('correct-answer'));
+      userEvent.click(screen.getByTestId('btn-next'));
+      expect(screen.getByText('1')).toBeInTheDocument();
+    });
+    userEvent.click(screen.getByTestId('btn-ranking'));
+
+    expect(screen.getByTestId('ranking-title')).toBeInTheDocument();
+
+    userEvent.click(screen.getByTestId('btn-go-home'));
+    expect(history.location.pathname).toBe('/');
   });
 });
