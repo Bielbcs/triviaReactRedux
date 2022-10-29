@@ -33,7 +33,7 @@ export default class Game extends Component {
   render() {
     const { questions } = this.state;
     return (
-      <div>
+      <div className="general-container">
         <Header />
         {questions.length > 0 && <Questions
           questions={ questions }

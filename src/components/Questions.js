@@ -8,6 +8,8 @@ import { COUNT_ASSERTIONS } from '../redux/actions/typeNames';
 import { setLocalStorage } from '../services/api';
 
 const CORRECT_ANSWER = 'correct-answer';
+const CORRECT_ANSWER_CLASS = 'correct-answer btn btn-success';
+const MAGIC_TEN = 10;
 class Questions extends Component {
   state = {
     id: 0,
@@ -72,7 +74,7 @@ class Questions extends Component {
     const { questions } = this.props;
     return (
       questions[id].correct_answer === alt
-        ? CORRECT_ANSWER : 'wrong-answer'
+        ? CORRECT_ANSWER_CLASS : 'wrong-answer btn btn-danger'
     );
   };
 
@@ -102,7 +104,7 @@ class Questions extends Component {
 
   handleAnswerClick = ({ target }) => {
     this.setState({ isDisabled: false, stopTimer: true, disableAnswers: true });
-    if (target.dataset.testid === 'correct-answer') {
+    if (target.dataset.testid === CORRECT_ANSWER) {
       const CALC_NUMBER = 10;
       this.setState((prevState) => ({
         ...prevState,
@@ -135,24 +137,33 @@ class Questions extends Component {
     const { id, randomized, isDisabled, seconds, disableAnswers } = this.state;
 
     return (
-      <div>
+      <div className="questions-container">
         {
           id < questions.length
             ? (
               <div>
                 <aside>
-                  <p data-testid="question-category">{questions[id].category}</p>
+                  <p
+                    data-testid="question-category"
+                    style={ {
+                      fontWeight: 'bolder',
+                    } }
+                  >
+                    {questions[id].category}
+
+                  </p>
                   <p data-testid="question-text">{questions[id].question}</p>
                 </aside>
                 <aside>
-                  <div data-testid="answer-options">
+                  <div data-testid="answer-options" className="btns-container">
                     {randomized.map((alt, index) => (
                       <button
                         data-testid={ questions[id].correct_answer === alt
                           ? CORRECT_ANSWER : `wrong-answer-${index}` }
                         type="button"
                         key={ index }
-                        className={ !isDisabled ? this.showColors(alt) : null }
+                        className={ !isDisabled ? this.showColors(alt)
+                          : 'btn btn-secondary' }
                         onClick={ (e) => this.assertions(e) }
                         disabled={ disableAnswers }
                       >
@@ -160,20 +171,23 @@ class Questions extends Component {
                       </button>))}
                   </div>
                   {!isDisabled
-          && (
-            <button
-              type="button"
-              data-testid="btn-next"
-              onClick={ this.setId }
-            >
-              Next
-            </button>
-          )}
-                  <p>
-                    {
-                      seconds
-                    }
-                  </p>
+                  && (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      data-testid="btn-next"
+                      onClick={ this.setId }
+                    >
+                      Next
+                    </button>
+                  )}
+                  <br />
+                  <span
+                    style={ { fontWeight: 'bold', fontSize: '20pt' } }
+                    className={ seconds < MAGIC_TEN && 'fast' }
+                  >
+                    {seconds}
+                  </span>
                 </aside>
               </div>
             )
