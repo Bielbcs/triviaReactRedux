@@ -1,10 +1,13 @@
 # ❓ Projeto Trvia React Redux ❓
 
+https://trivia-six-tawny.vercel.app/
+
 <details>
   <summary>
     <h3> Descrição 📝</h3>
   </summary>
   Projeto feito durante o curso da <a href="https://www.betrybe.com/">Trybe</a> para testar os conhecimentos adquiridos.</br>
+  Um jogo de perguntas e respostas que soma pontos com base nos acertos e no tempo. </br>
   Nele é feito requisições para uma API de perguntas e respostas </br>
   Endpoint: https://opentdb.com/ </br></br>
 
